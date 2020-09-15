@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>资产列表</title>
+  <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+<body>
+ 
+<!-- 你的HTML代码 -->
+<table class="layui-hide" id="demo"></table>
+               
+          
+<script src="/static/layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script type="text/html" id="listTpl">
+  {% verbatim %}
+  {{# 
+      var portarry = d.allport.split(";");
+
+      for (var i = 0; i < portarry.length-1; i++){
+        var items = portarry[i].trim().split(":");
+  }}  
+    <a href='/portdetail/?id={{items[0]}}' target='_blank'> {{items[1]}}</a>; 
+  {{# } }}
+ {% endverbatim %}
+</script>
+<script type="text/html" id="linkTpl">
+{% verbatim %}
+<a href='/portdetail/?assetid={{d.id}}' target='_blank'> {{d.id}}</a>; 
+{% endverbatim %}
+</script>
+
+<script>
+layui.use('table', function(){
+  var table = layui.table;
+  
+  //展示已知数据
+  table.render({
+    elem: '#demo'
+    ,cols: [[ //标题栏
+      {field: 'vid', title: 'ID', width: 80, templet: '#linkTpl', sort: true}
+      ,{field: 'ip', title: '设备IP', minwidth: 60}
+      ,{field: 'mac', title: 'MAC地址', minWidth: 60}
+      ,{field: 'hostname', title: '主机名', minWidth: 40}
+      ,{field: 'vendor', title: '设备厂商', minWidth: 80}
+      ,{field: 'aid', title: '设备id', width: 100}
+      ,{field: 'ports', title: '端口列表', templet: '#listTpl', minWidth: 100}
+    ]]
+    ,data: [
+    {% for asset in ipassets %}  
+    {
+      "id": "{{asset.id}}"
+      ,"ip": "{{asset.ip}}"
+      ,"mac": "{{asset.mac}}"
+      ,"hostname": "{{asset.hostname}}"
+      ,"vendor": "{{asset.vendor}}"
+      ,"aid": "{{asset.aid}}"
+      , "allport": "{% for port in asset.all_ports %} {{port.id}}:{{port.port}};{% endfor %}"
+    },
+    {% endfor %}
+    ]
+    //,skin: 'line' //表格风格
+    ,even: true
+    //,page: true //是否显示分页
+    //,limits: [5, 7, 10]
+    //,limit: 5 //每页默认显示的数量
+  });
+});
+</script>
+ 
+
+</body>
+</html>
